@@ -19,7 +19,8 @@ namespace ConsoleApplication1
     {
         static void Main(string[] args)
         {
-            Auth.SetUserCredentials("eexE3I6qTZ6KldSOGqDBa3jkw", "NXLLQeJ4wINGfJ2rouDCsZLpnqCfd9cfVqDJUtjpk7jwfiwYpe", "416698831-jvYXtAmRrjijesP0sBf6E1UkX84dFlaUjPlzSDuA", "gW67pNo3z0WE0tSordiyWK8cuWKApM64HganFnN0g3vcR");
+            Auth.SetUserCredentials("IVVasZNY6Fkdwi32BOVKuuXvG", "6KSfzns39G0Wjsw0LS8P3eayQsIZuFHVEUS3nYeJlIizK1vrhi", "838041203895586816-5GkpOpuLUJq17nYGcHEAZrf6IOI2Dvx", "UFnrldn285PnO8LOPFF5Ms8R5VCd13SfkkWLG4GEiGT8g");
+            var user = User.GetAuthenticatedUser();
             var tweets = Search.SearchTweets("Happy Hour");
             var timeline = Timeline.GetHomeTimeline();
 
