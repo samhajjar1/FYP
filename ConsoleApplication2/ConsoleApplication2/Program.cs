@@ -29,6 +29,19 @@ namespace ConsoleApplication2
             
         }
 
+        public FacebookLikes getPostLikes(FacebookPost post)
+        {
+            var fbData = myfbclient.Get(post.id + "/likes").ToString();
+
+
+
+        }
+
+        public FacebookComment getPostComments(FacebookPost post)
+        {
+
+        }
+
         public FacebookPageInfo getPageInfo(string pageId)
         {
             var pageData = myfbclient.Get(pageId + FacebookPageInfo.fields).ToString();
@@ -38,17 +51,17 @@ namespace ConsoleApplication2
 
         public List<FacebookPost> getAllFBPostsForPage(string pageId)
         {
-           var pageData = myfbclient.Get(pageId+ "/posts"+FacebookPost.fields).ToString();
+           var fbData = myfbclient.Get(pageId+ "/posts"+FacebookPost.fields).ToString();
             FacebookPostData posts = null ;
             List<FacebookPost> postsLists = new List<FacebookPost>();
             do
             {
                 if (posts != null && posts.Data.Count != 0)
                 {
-                    pageData = myfbclient.Get(posts.Paging.Next).ToString();
+                    fbData = myfbclient.Get(posts.Paging.Next).ToString();
 
                 }
-                posts = JsonConvert.DeserializeObject<FacebookPostData>(pageData);
+                posts = JsonConvert.DeserializeObject<FacebookPostData>(fbData);
                 postsLists.AddRange(posts.Data);
             }
             while (posts.Data.Count != 0);
@@ -60,7 +73,7 @@ namespace ConsoleApplication2
             Program myProgram = new Program();
             FacebookPageInfo pageInfo = myProgram.getPageInfo(myProgram.JavistaPage);
             List<FacebookPost> postsLists = myProgram.getAllFBPostsForPage(myProgram.JavistaPage);
-            FacebookClient
+            
         }
     }
 }
