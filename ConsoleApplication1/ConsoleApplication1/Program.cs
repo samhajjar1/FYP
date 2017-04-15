@@ -13,6 +13,7 @@ using Tweetinvi.Core.Interfaces.Streaminvi;
 using Tweetinvi.Core.Parameters;
 using Tweetinvi.Json;
 using Tweetinvi.Models;
+using Tweetinvi.Models.DTO;
 
 namespace ConsoleApplication1
 {
@@ -23,27 +24,28 @@ namespace ConsoleApplication1
             var user = User.GetAuthenticatedUser();
             var myFriends = user.GetFriends();
 
-            var tweets = Search.SearchTweets("#Javista");
-            var timeline = Timeline.GetHomeTimeline();
+            var tweets = Search.SearchTweets("Javista_CRM");
+            var timeline = Timeline.GetHomeTimeline();//my logged in timeine
 
-            var searchparam = new Tweetinvi.Parameters.SearchTweetsParameters("Obama")
+            var searchparam = new Tweetinvi.Parameters.SearchTweetsParameters("from:Javista_CRM exclude:replies")
             {
-                MaximumNumberOfResults = 30,
-                TweetSearchType = Tweetinvi.Parameters.TweetSearchType.OriginalTweetsOnly
-                //SearchType = SearchResultType.Popular,
-                //Until = new DateTime(2015, 10, 10),
-                //Since = new DateTime(2010, 10, 10)
+                MaximumNumberOfResults = 300,
+                TweetSearchType = Tweetinvi.Parameters.TweetSearchType.OriginalTweetsOnly,
+                SearchType = SearchResultType.Recent,
+                Until = new DateTime(2017, 04, 12),
+                Since = new DateTime(2017, 04, 09),
+                //Filters = Tweetinvi.Parameters.TweetSearchFilters.Replies,
             };
             var tweetss = Search.SearchTweets(searchparam);
 
-            var users = Search.SearchUsers("Javista");
+            var users = Search.SearchUsers("Javista_CRM");
 
-            var javistaFollowers = users.ToList()[2].FollowersCount;
-            var javistaF = users.ToList()[2].GetFollowers();
+            var javistaFollowers = users.ToList()[0].FollowersCount;
+            var javistaF = users.ToList()[0].GetFollowers();
 
 
             //var query = $"https://api.twitter.com/1.1/favorites/list.json?count={maxNumberOfTweets}&user_id={lu.Id}";
-            //GET https://api.twitter.com/1.1/search/tweets.json?q=%23freebandnames&since_id=24012619984051000&max_id=250126199840518145&result_type=mixed&count=4
+            ////GET https://api.twitter.com/1.1/search/tweets.json?q=%23freebandnames&since_id=24012619984051000&max_id=250126199840518145&result_type=mixed&count=4
             //var favoriteDTOs = TwitterAccessor.ExecuteGETQuery<IEnumerable<ITweetDTO>>(query);
             //var favorites = Tweet.GenerateTweetsFromDTO(favoriteDTOs);
         }
@@ -56,7 +58,7 @@ namespace ConsoleApplication1
 
         public ITweet[] getJaviTweetsByID(int javistaID)
         {
-            var lastTweets = Timeline.GetUserTimeline(javistaID, 50).ToArray();
+            var lastTweets = Timeline.GetUserTimeline(javistaID,50).ToArray();
             return lastTweets;
         }
 
@@ -82,6 +84,21 @@ namespace ConsoleApplication1
             return tweetsers;
         }
 
+        public IEnumerable<ITweet> getTweetsSinceDate(IUser userPage, DateTime date)
+        {
+            var searchparam = new Tweetinvi.Parameters.SearchTweetsParameters("from:" + userPage.ScreenName+ " exclude:replies")
+            {
+                MaximumNumberOfResults = 300,
+                TweetSearchType = Tweetinvi.Parameters.TweetSearchType.OriginalTweetsOnly,
+                SearchType = SearchResultType.Recent,
+                //Until = new DateTime(2017, 04, 12),
+                //Since = new DateTime(2017, 04, 09),
+                Since = date,
+            };
+            var tweetss = Search.SearchTweets(searchparam);
+            return tweetss;
+        }
+
         public ITweet[] getJaviOriginalTweets(IUser userPage)
         {
             var userTimelineParameters = Timeline.CreateUserTimelineParameter();
@@ -92,7 +109,7 @@ namespace ConsoleApplication1
 
         public Hashtable getRetweetedTweets(IUser javiPage)
         {
-            var tweets = Timeline.GetUserTimeline(javiPage.Id, 5).ToArray();
+            var tweets = Timeline.GetUserTimeline(javiPage.Id, 10).ToArray();
             //var retweets = new List<ITweet>();
             Hashtable retweetsHash = new Hashtable();
             foreach (Tweetinvi.Logic.Tweet tweet in tweets)
@@ -142,15 +159,21 @@ namespace ConsoleApplication1
 
             var searchParameter = new Tweetinvi.Parameters.SearchTweetsParameters(query)
             {
-                MaximumNumberOfResults = 50,
-                Since = new DateTime(2016, 2, 15),
-                //Filters = RepliesFilterType.RepliesToKnownUsers.
+                MaximumNumberOfResults = 200,
+                Since = new DateTime(2016, 3, 12),
+                //Filters = RepliesFilterType.RepliesToKnownUsers,
             };
             var tweets = Search.SearchTweets(searchParameter);
 
 
 
             var x = Search.SearchTweets("from:Javista_CRM");
+        }
+
+        public ITweet getTweetInfo(long id)
+        {
+            var tweet = Tweet.GetTweet(851785389757132800);
+            return tweet;
         }
 
         public void javistaInfo()//to ignore
@@ -224,28 +247,35 @@ namespace ConsoleApplication1
         static void Main(string[] args)
         {
             Auth.SetUserCredentials("IVVasZNY6Fkdwi32BOVKuuXvG", "6KSfzns39G0Wjsw0LS8P3eayQsIZuFHVEUS3nYeJlIizK1vrhi", "838041203895586816-5GkpOpuLUJq17nYGcHEAZrf6IOI2Dvx", "UFnrldn285PnO8LOPFF5Ms8R5VCd13SfkkWLG4GEiGT8g");
-
-            //autre methode pr credentials
-            //var creds = new TwitterCredentials("IVVasZNY6Fkdwi32BOVKuuXvG", "6KSfzns39G0Wjsw0LS8P3eayQsIZuFHVEUS3nYeJlIizK1vrhi", "838041203895586816-5GkpOpuLUJq17nYGcHEAZrf6IOI2Dvx", "UFnrldn285PnO8LOPFF5Ms8R5VCd13SfkkWLG4GEiGT8g");
-            //var tweet = Auth.ExecuteOperationWithCredentials(creds, () =>
-            //{
-            //    return Search.SearchTweets("Happy Hour");
-            //});
-
+            
             var program = new Program();
-            var javiPage = program.getUserPage("Javista_CRM");
-            //var javitweets = program.getJaviTweetsByPage(javiPage);
+            program.tests();
 
-            ////program.javistaInfo();
-            ////List<ITweet> retweets = program.getRetweetedTweets(javiPage);
-            //Hashtable retweets = program.getRetweetedTweets(javiPage);
-            //var users = program.getRetweetersByTweetID(841939666022612994, retweets);
+            var javiPage = program.getUserPage("Javista_CRM");
+            //var javiPage = program.getUserPage("pointsDfidelite");
+
+            var time = program.getTweetsSinceDate(javiPage, new DateTime(2017, 04, 09));
+
+
+            var javitweets = program.getJaviTweetsByPage(javiPage);
+            //Console.WriteLine(javitweets.ToJson());
+
+            //program.javistaInfo();
+            //List<ITweet> retweets = program.getRetweetedTweets(javiPage);
+            Hashtable retweets = program.getRetweetedTweets(javiPage);
+            //var users = program.getRetweetersByTweetID(850001426399080448, retweets);
+            //var users = program.getRetweetersByTweetID(851775854241828864, retweets);
+
+
+            var deletedTweetStatus = program.getTweetInfo(852483696733061120);
 
             //var numFollowers = program.getFollowersCount(javiPage);
             //var Followers = program.getFollowers(javiPage);
 
-            program.search("from:MercedesBenz");
-            var tweetsByTime = program.getJaviTweetsByTimeInterval(javiPage);
+            //program.search("from:Javista_CRM");
+            //var tweetsByTime = program.getJaviTweetsByTimeInterval(javiPage);
+
+            //var tweetsSince = program.getTweetsSinceDate(javiPage, );
         }
     }
 }

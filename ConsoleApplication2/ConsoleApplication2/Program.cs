@@ -24,23 +24,30 @@ namespace ConsoleApplication2
             var client = new WebClient();
             string oauthUrl = string.Format("https://graph.facebook.com/oauth/access_token?type=client_cred&client_id={0}&client_secret={1}", AppId, AppSecret);
 
-            string accessToken = client.DownloadString(oauthUrl).Split('=')[1];
-            myfbclient = new FacebookClient(accessToken);
+            try
+            {
+                string accessToken = client.DownloadString(oauthUrl).Split('=')[1];
+                myfbclient = new FacebookClient(accessToken);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+            }
             
         }
 
-        public FacebookLikes getPostLikes(FacebookPost post)
-        {
-            var fbData = myfbclient.Get(post.id + "/likes").ToString();
+        //public FacebookLikes getPostLikes(FacebookPost post)
+        //{
+        //    var fbData = myfbclient.Get(post.id + "/likes").ToString();
 
 
 
-        }
+        //}
 
-        public FacebookComment getPostComments(FacebookPost post)
-        {
+        //public FacebookComment getPostComments(FacebookPost post)
+        //{
 
-        }
+        //}
 
         public FacebookPageInfo getPageInfo(string pageId)
         {
