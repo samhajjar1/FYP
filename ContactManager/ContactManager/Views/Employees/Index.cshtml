@@ -1,0 +1,44 @@
+﻿@model ContactManager.Models.Employees
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var emp = ViewData["user"] as ContactManager.Models.Employee;
+}
+
+<h2>@User.Identity.Name</h2>
+@emp.fixScore | @emp.variableScore<br />
+<br />
+@Html.ActionLink("Convertir ", "Convert", "Employees")
+<br />
+@foreach (var act in emp.activities)
+{
+    <br />
+    <span>
+        @act.platform @act.action = @act.points | date: @act.parentCreatedAt | id: @act.parentId
+    </span>
+    <br />
+}
+
+<table class="table">
+    @foreach (var item in Model.employees)
+    {
+        <tr>
+            <td>
+                @item.firstname
+                @item.lastname |
+                @item.screen_name |
+                @item.fixScore |
+                @item.variableScore
+                @foreach (var act in item.activities)
+                {
+                    <br />
+                    <span>@act.platform @act.action = @act.points Point(s) | date: @act.parentCreatedAt | id: @act.parentId </span>
+                    <br />
+                }
+            </td>
+        </tr>
+    }
+
+
+</table>

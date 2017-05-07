@@ -14,6 +14,8 @@ using Tweetinvi.Core.Parameters;
 using Tweetinvi.Json;
 using Tweetinvi.Models;
 using Tweetinvi.Models.DTO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ConsoleApplication1
 {
@@ -58,7 +60,7 @@ namespace ConsoleApplication1
 
         public ITweet[] getJaviTweetsByID(int javistaID)
         {
-            var lastTweets = Timeline.GetUserTimeline(javistaID,50).ToArray();
+            var lastTweets = Timeline.GetUserTimeline(javistaID, 50).ToArray();
             return lastTweets;
         }
 
@@ -78,7 +80,7 @@ namespace ConsoleApplication1
             IEnumerable<ITweet> tweetsers = Timeline.GetUserTimeline(userPage.Id, userTimelineParameters);
 
             //var x = tweetsers.First().FavoriteCount;
-            
+
 
 
             return tweetsers;
@@ -86,7 +88,8 @@ namespace ConsoleApplication1
 
         public IEnumerable<ITweet> getTweetsSinceDate(IUser userPage, DateTime date)
         {
-            var searchparam = new Tweetinvi.Parameters.SearchTweetsParameters("from:" + userPage.ScreenName+ " exclude:replies")
+            //var searchparam = new Tweetinvi.Parameters.SearchTweetsParameters("from:" + userPage.ScreenName + " exclude:replies")
+            var searchparam = new Tweetinvi.Parameters.SearchTweetsParameters("from:" + userPage.ScreenName + " exclude:replies" + " test")
             {
                 MaximumNumberOfResults = 300,
                 TweetSearchType = Tweetinvi.Parameters.TweetSearchType.OriginalTweetsOnly,
@@ -226,11 +229,11 @@ namespace ConsoleApplication1
             //get retweets of me
             //var javiRetweets = javiPage.Timeline.GetEnumerator();
             var x = javiPage.TweetsRetweetedByFollowers;
-            
+
 
             //var javiTags = Search.SearchTweets("#Javista");
             //var javiEntities = javiPage.Entities.Description.ToString();
-            
+
             //var javiFollowers = javiPage.Followers;
             //var javiFriends = javiPage.Friends;
             //var javiFriendsRetweet = javiPage.FriendsRetweets;
@@ -247,18 +250,33 @@ namespace ConsoleApplication1
         static void Main(string[] args)
         {
             Auth.SetUserCredentials("IVVasZNY6Fkdwi32BOVKuuXvG", "6KSfzns39G0Wjsw0LS8P3eayQsIZuFHVEUS3nYeJlIizK1vrhi", "838041203895586816-5GkpOpuLUJq17nYGcHEAZrf6IOI2Dvx", "UFnrldn285PnO8LOPFF5Ms8R5VCd13SfkkWLG4GEiGT8g");
-            
+
             var program = new Program();
             program.tests();
 
-            var javiPage = program.getUserPage("Javista_CRM");
+            var javiPage = program.getUserPage("pointsDfidelite");
             //var javiPage = program.getUserPage("pointsDfidelite");
 
             var time = program.getTweetsSinceDate(javiPage, new DateTime(2017, 04, 09));
 
 
             var javitweets = program.getJaviTweetsByPage(javiPage);
-            //Console.WriteLine(javitweets.ToJson());
+            JObject oo = new JObject();
+            oo["TId"] = javitweets[2].Id;
+            var obj = new JArray();
+            foreach (Tweetinvi.Logic.Tweet retweet in javitweets[2].GetRetweets())
+            {
+
+
+
+
+                var arr = new JArray();
+                arr.Add(retweet.Id);
+                arr.Add(retweet.Text);
+                obj.Add(arr);
+            }
+            oo["retweets"] = JsonConvert.DeserializeObject<JArray>(obj.ToJson());
+            Console.WriteLine(oo);
 
             //program.javistaInfo();
             //List<ITweet> retweets = program.getRetweetedTweets(javiPage);
@@ -275,7 +293,7 @@ namespace ConsoleApplication1
             //program.search("from:Javista_CRM");
             //var tweetsByTime = program.getJaviTweetsByTimeInterval(javiPage);
 
-            //var tweetsSince = program.getTweetsSinceDate(javiPage, );
+            var tweetsSince = program.getTweetsSinceDate(javiPage, new DateTime(2017,4,15));
         }
     }
 }

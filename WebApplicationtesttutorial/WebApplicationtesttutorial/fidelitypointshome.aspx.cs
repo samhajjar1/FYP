@@ -14,14 +14,6 @@ namespace WebApplicationtesttutorial
 
         }
 
-        protected void Button1_Click(object sender, EventArgs e)
-        {
-            Label1.Text = TextBox1.Text + ", Welcome!";
-        }
-
-        protected void Calendar1_SelectionChanged(object sender, EventArgs e)
-        {
-            
-        }
+        
     }
 }
