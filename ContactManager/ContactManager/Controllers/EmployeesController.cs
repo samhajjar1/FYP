@@ -77,9 +77,10 @@ namespace ContactManager.Controllers
                 var user = context.Users.FirstOrDefault(p => p.UserName == username);
                 if(user != null){
                     var fixedScore = DocumentDBRepository<Employees>.getConnectedEmployeeFixedScore(username);
+                    return View(fixedScore);
                 }
             }
-            return View();
+            return View("Error");
         }
 
     }

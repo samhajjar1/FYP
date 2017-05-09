@@ -410,6 +410,10 @@ namespace ContactManager.Controllers
                 {
                     return View("ExternalLoginFailure");
                 }
+                if(model.CompanyCode != "s2a32u")
+                {
+                    return View("ExternalLoginFailure");
+                }
                 var user = new ApplicationUser { UserName = screenName, Email = model.Email };
                 var result = await UserManager.CreateAsync(user);
                 if (result.Succeeded)

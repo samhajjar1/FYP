@@ -22,3 +22,59 @@ select,
 textarea {
     max-width: 280px;
 }
+
+.bold {
+    font-weight: bold;
+}
+
+.btn {
+    height: 40px;
+    padding-top: 7px;
+    font-size: 18px;
+}
+
+.convertir-btn {
+    color: white;
+    background-color: #0066cc;
+}
+.convertir-btn:hover{
+    color: #e84925;
+}
+
+.no-click {
+    cursor: default;
+}
+
+.orange-bckg {
+    background-color: #e84925;
+    vertical-align: middle;
+}
+
+    .orange-bckg:hover {
+        color: white;
+    }
+
+.color-white {
+    color: white;
+}
+
+.color-orange {
+    color: #e84925;
+}
+
+#top-converter-div {
+    background-color: #cccccc;
+    margin-bottom: 100px;
+    border-radius: 5px;
+    padding: 20px;
+}
+
+#bottom-converter-div {
+    background-color: #cccccc;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.title {
+    font-size: 58px;
+}

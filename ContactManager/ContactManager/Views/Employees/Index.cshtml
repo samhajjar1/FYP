@@ -6,39 +6,52 @@
     var emp = ViewData["user"] as ContactManager.Models.Employee;
 }
 
-<h2>@User.Identity.Name</h2>
-@emp.fixScore | @emp.variableScore<br />
-<br />
-@Html.ActionLink("Convertir ", "Convert", "Employees")
-<br />
-@foreach (var act in emp.activities)
-{
+<div class="containe" id="top-converter-div">
+    <div style="margin-bottom: 30px;">
+        <span class="color-orange bold title">@User.Identity.Name</span>
+    </div>
+    <div class="container">
+        <div class="row">
+            <span class="btn col-md-3 no-click orange-bckg color-white">Score Fixe: @emp.fixScore</span>
+            <span class="btn col-md-3 col-md-offset-2 no-click orange-bckg color-white">Score Variable: @emp.variableScore</span>
+            <br />
+        </div>
+    </div>
     <br />
-    <span>
-        @act.platform @act.action = @act.points | date: @act.parentCreatedAt | id: @act.parentId
-    </span>
-    <br />
-}
-
-<table class="table">
-    @foreach (var item in Model.employees)
+    <span>@Html.ActionLink("Convertir ", "Convert", "Employees", new { @class = "btn col-md-3 convertir-btn" })</span>
+    <br /><br />
+    @foreach (var act in emp.activities)
     {
-        <tr>
-            <td>
-                @item.firstname
-                @item.lastname |
-                @item.screen_name |
-                @item.fixScore |
-                @item.variableScore
-                @foreach (var act in item.activities)
-                {
-                    <br />
-                    <span>@act.platform @act.action = @act.points Point(s) | date: @act.parentCreatedAt | id: @act.parentId </span>
-                    <br />
-                }
-            </td>
-        </tr>
+        <br />
+        <span>
+            @act.platform @act.action = @act.points | date: @act.parentCreatedAt | id: @act.parentId
+        </span>
+        <br />
     }
+</div>
+
+<div class="container" id="bottom-converter-div">
+    <span class="color-orange bold title">Company's Logs</span>
+    <table class="table">
+        @foreach (var item in Model.employees)
+        {
+            <tr>
+                <td>
+                    @item.firstname
+                    @item.lastname |
+                    @item.screen_name |
+                    @item.fixScore |
+                    @item.variableScore
+                    @foreach (var act in item.activities)
+                {
+                        <br />
+                        <span>@act.platform @act.action = @act.points Point(s) | date: @act.parentCreatedAt | id: @act.parentId </span>
+                        <br />
+                    }
+                </td>
+            </tr>
+        }
 
 
-</table>
+    </table>
+</div>

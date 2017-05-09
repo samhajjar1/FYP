@@ -16,6 +16,10 @@ namespace ContactManager.Models
         [Required]
         [Display(Name = "LastName")]
         public string LastName { get; set; }
+
+        [Required]
+        [Display(Name = "CompanyCode")]
+        public string CompanyCode { get; set; }
     }
 
     public class ExternalLoginListViewModel
