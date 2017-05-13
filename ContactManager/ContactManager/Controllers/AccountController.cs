@@ -10,7 +10,6 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using ContactManager.Models;
-using LinqToTwitter;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -345,31 +344,33 @@ namespace ContactManager.Controllers
                 return RedirectToAction("Login");
             }
 
-            if (loginInfo.Login.LoginProvider.ToLower() == "twitter")
-            {
-                var authTwitter = new SingleUserAuthorizer
-                {
-                    CredentialStore = new SingleUserInMemoryCredentialStore
-                    {
-                        ConsumerKey = ConfigurationManager.AppSettings["twitterPublic"],
-                        ConsumerSecret = ConfigurationManager.AppSettings["twitterPrivate"],
-                        OAuthToken = ConfigurationManager.AppSettings["accessToken"],
-                        OAuthTokenSecret = ConfigurationManager.AppSettings["accessTokenSecret"],
-                        UserID = ulong.Parse(loginInfo.Login.ProviderKey),
-                        ScreenName = loginInfo.DefaultUserName
-                    }
-                };
-                await authTwitter.AuthorizeAsync();
+            //if (loginInfo.Login.LoginProvider.ToLower() == "twitter")
+            //{
+            //    var authTwitter = new SingleUserAuthorizer
+            //    {
+            //        CredentialStore = new SingleUserInMemoryCredentialStore
+            //        {
+            //            ConsumerKey = ConfigurationManager.AppSettings["twitterPublic"],
+            //            ConsumerSecret = ConfigurationManager.AppSettings["twitterPrivate"],
+            //            OAuthToken = ConfigurationManager.AppSettings["accessToken"],
+            //            OAuthTokenSecret = ConfigurationManager.AppSettings["accessTokenSecret"],
+            //            UserID = ulong.Parse(loginInfo.Login.ProviderKey),
+            //            ScreenName = loginInfo.DefaultUserName
+            //        }
+            //    };
+            //    await authTwitter.AuthorizeAsync();
 
-                var twitterCtx = new TwitterContext(authTwitter);
-                var verifyResponse = await (from account in twitterCtx.Account where (account.Type == AccountType.VerifyCredentials) && (account.IncludeEmail == true) select account).SingleOrDefaultAsync();
-                if(verifyResponse != null && verifyResponse.User != null)
-                {
-                    User twitterUser = verifyResponse.User;
-                    loginInfo.Email = twitterUser.Email;
-                }
+            //    var twitterCtx = new TwitterContext(authTwitter);
+            //    var verifyResponse = await (from account in twitterCtx.Account where (account.Type == AccountType.VerifyCredentials) && (account.IncludeEmail == true) select account).SingleOrDefaultAsync();
+            //    if(verifyResponse != null && verifyResponse.User != null)
+            //    {
+            //        User twitterUser = verifyResponse.User;
+            //        loginInfo.Email = twitterUser.Email;
+            //    }
 
-            }
+            //}
+
+
             // Sign in the user with this external login provider if the user already has a login
             var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
             switch (result)
@@ -426,7 +427,7 @@ namespace ContactManager.Controllers
                         await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
                         HttpClient client = new HttpClient();
                         client.DefaultRequestHeaders.Accept.Clear();
-                        string uri = "https://twitterfetchfunc.azurewebsites.net/api/HttpTriggerCSharp1?code=d91AZUlK4lsx9wIpLP3uV2GhAjVay0NhNG0kwjKT6/FYjZ34XkKJzA==&&firstname=" + model.FirstName + "&&lastname=" + model.LastName + "&&twitter=" + user.UserName;
+                        string uri = "https://fidelitefunctionapp.azurewebsites.net/api/fideliteAPIfunc?code=hi4fqcTU0mQ/1l17caJaFVG6Cy2E1nAEd3iQownVvqEJV8V3wAqZXQ==&&firstname=" + model.FirstName + "&&lastname=" + model.LastName + "&&twitter=" + user.UserName;
                         await client.PostAsync(uri, null);
                         return RedirectToLocal(returnUrl);
                     }

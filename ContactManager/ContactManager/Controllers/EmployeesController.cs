@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using ContactManager.Models;
 using Newtonsoft.Json;
 using Microsoft.AspNet.Identity;
-
+using System.IO;
 
 namespace ContactManager.Controllers
 {
@@ -73,11 +73,37 @@ namespace ContactManager.Controllers
         {
             using (var context = new ApplicationDbContext())
             {
+
+                WebRequest request = WebRequest.Create(
+             "https://fidelitefunctionapp.azurewebsites.net/api/HttpTriggerCSharp/name/?code=7LSGHFqUi34TX/7Vq243akHhUKSpdYmC5RqnkEB09D12n/8kfsCNDw==");
+                // Get the response.  
+                WebResponse response = request.GetResponse();
+                // Display the status.  
+                Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+                // Get the stream containing content returned by the server.  
+                Stream dataStream = response.GetResponseStream();
+                // Open the stream using a StreamReader for easy access.  
+                StreamReader reader = new StreamReader(dataStream);
+                // Read the content.  
+                string responseFromServer = reader.ReadToEnd();
+                // Display the content.  
+                Console.WriteLine(responseFromServer);
+                // Clean up the streams and the response.  
+                reader.Close();
+                response.Close();
+
+                var first = responseFromServer.Replace("\"", "'");
+                var second = first.Replace("\\", string.Empty);
+                var third = second.Replace("'{", "{");
+                var fourth = third.Replace("}'", "}");
+                var rewards = JsonConvert.DeserializeObject<Rewards>(fourth);
+
                 var username = User.Identity.Name;
                 var user = context.Users.FirstOrDefault(p => p.UserName == username);
                 if(user != null){
                     var fixedScore = DocumentDBRepository<Employees>.getConnectedEmployeeFixedScore(username);
-                    return View(fixedScore);
+                    ViewData["FixedScore"] = fixedScore;
+                    return View(rewards);
                 }
             }
             return View("Error");

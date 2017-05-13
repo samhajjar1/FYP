@@ -1,8 +1,16 @@
-﻿@model int
+﻿@model ContactManager.Models.Rewards
 @{
     ViewBag.Title = "Convertir";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h2>Convertir</h2>
-<h1>@Model</h1>
+
+<select name="rewards">
+    @{ 
+        foreach(var reward in Model.rewards)
+        {
+            <option value="@reward.name">@reward.name (@reward.points)</option>
+        }
+    }
+</select>
