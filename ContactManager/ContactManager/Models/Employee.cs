@@ -13,6 +13,8 @@ namespace ContactManager.Models
         public int fixScore { get; set; }
         public int variableScore { get; set; }
         public List<Activity> activities { get; set; }
+        public List<RewardUsed> rewards_used { get; set; }
+
 
     }
 }

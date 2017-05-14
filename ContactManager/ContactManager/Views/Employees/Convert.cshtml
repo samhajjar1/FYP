@@ -1,16 +1,57 @@
-﻿@model ContactManager.Models.Rewards
+﻿@model ContactManager.Models.Employee
 @{
     ViewBag.Title = "Convertir";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var rewards = ViewData["rewards"] as ContactManager.Models.Rewards;
 }
+
+@{
+    if (IsPost)
+    {
+        string chosenReward = Request.Form["Rewards"];
+        if(rewards.rewards.FirstOrDefault(p => p.name == chosenReward).points > Model.fixScore)
+        {
+            <script>alert("Not enought points")</script>
+        }
+        else
+        {
+            WebRequest request = WebRequest.Create(
+            "https://fidelitefunctionapp.azurewebsites.net/api/ConvertPointsToRewardTrigger?code=kDO9JMjxlAyH/w9PprQU/pr0zFZUa8nl7qCShYZ82EUPeRStFcTiGg==&&screenname=" + Model.screen_name + "&&rewardtype=" + chosenReward);
+            WebResponse response = request.GetResponse();
+            <script>
+                alert("Congratulations");
+                window.location("./");
+            </script>
+        }
+    }
+}
+
 
 <h2>Convertir</h2>
 
-<select name="rewards">
-    @{ 
-        foreach(var reward in Model.rewards)
-        {
-            <option value="@reward.name">@reward.name (@reward.points)</option>
-        }
-    }
-</select>
+<h1>@Model.screen_name Score = @Model.fixScore</h1>
+
+
+
+
+
+<form method="post">
+    <fieldset>
+        <div>
+            <label for="Rewards">Rewards:</label>
+            <select name="Rewards">
+                @{
+                    foreach (var reward in rewards.rewards)
+                    {
+                        <option value="@reward.name">@reward.name (@reward.points)</option>
+                    }
+                }
+            </select>
+        </div>
+        
+        <div>
+            <label>&nbsp;</label>
+            <input type="submit" value="Convert" class="submit" />
+        </div>
+    </fieldset>
+</form>

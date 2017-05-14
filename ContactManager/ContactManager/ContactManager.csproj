@@ -349,6 +349,7 @@
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Reward.cs" />
     <Compile Include="Models\Rewards.cs" />
+    <Compile Include="Models\RewardUsed.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -424,6 +425,7 @@
     <Content Include="Views\Employees\Edit.cshtml" />
     <Content Include="Views\Employees\Error.cshtml" />
     <Content Include="Views\Employees\Convert.cshtml" />
+    <Content Include="Views\Employees\SendConversion.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
