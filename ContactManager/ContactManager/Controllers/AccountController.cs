@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
@@ -12,6 +13,7 @@ using Microsoft.Owin.Security;
 using ContactManager.Models;
 using System.Net;
 using System.Net.Http;
+using System.Collections.Specialized;
 using System.Net.Http.Headers;
 
 namespace ContactManager.Controllers
@@ -422,14 +424,24 @@ namespace ContactManager.Controllers
                     result = await UserManager.AddLoginAsync(user.Id, info.Login);
                     if (result.Succeeded)
                     {
-                        //await UserManager.AddToRoleAsync(user.Id, "Admin");
-                        await UserManager.AddToRoleAsync(user.Id, "Employee");
-                        await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-                        HttpClient client = new HttpClient();
-                        client.DefaultRequestHeaders.Accept.Clear();
-                        string uri = "https://fidelitefunctionapp.azurewebsites.net/api/fideliteAPIfunc?code=hi4fqcTU0mQ/1l17caJaFVG6Cy2E1nAEd3iQownVvqEJV8V3wAqZXQ==&&firstname=" + model.FirstName + "&&lastname=" + model.LastName + "&&twitter=" + user.UserName;
-                        await client.PostAsync(uri, null);
-                        return RedirectToLocal(returnUrl);
+                        using (var webClient = new WebClient())
+                        {
+                            await UserManager.AddToRoleAsync(user.Id, "Employee");
+                            await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+
+                            string username = User.Identity.Name;
+                            string data = "{\"firstname\":\"" + model.FirstName + "\",\"lastname\":\"" + model.LastName + "\",\"twitter\":\"" + screenName + "\"}";
+                            var values = new NameValueCollection();
+                            values["firstname"] = model.FirstName;
+                            values["lastname"] = model.LastName;
+                            values["twitter"] = screenName;
+
+                            webClient.Headers.Add("content-type", "application/json");
+                            webClient.QueryString = values;
+                            var response = webClient.UploadData("https://fidelitefunctionapp.azurewebsites.net/api/APIfunc/addEmployee", "post", Encoding.Default.GetBytes(data));
+                            var responseString = Encoding.Default.GetString(response);
+                            return RedirectToLocal(returnUrl);
+                        }
                     }
                 }
                 AddErrors(result);

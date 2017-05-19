@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.UI;
 using System.Web.Mvc;
 using System.Web.Security;
 using System.Net;
@@ -13,31 +14,14 @@ using System.IO;
 using System.Text;
 using System.Collections.Specialized;
 using System.Net.Http;
+using System.Windows.Forms;
 
 namespace ContactManager.Controllers
 {
+    [Authorize(Roles = "Employee")]
     public class EmployeesController : Controller
     {
-        //// GET: Employees
-        //public ActionResult Index()
-        //{
-        //    return View();
-        //}
-
-
-
-        //[ActionName("Index")]
-        //[AllowAnonymous]
-        //public async Task<ActionResult> IndexAsync()
-        //{
-        //    var items = await DocumentDBRepository<Employees>.GetItemsAsync();
-        //    Console.WriteLine(items);
-        //    return View(items);
-        //}
-
-
         [ActionName("Index")]
-        [Authorize(Roles = "Employee")]
         public ActionResult Index()
         {
             using (var context = new ApplicationDbContext())
@@ -46,73 +30,131 @@ namespace ContactManager.Controllers
                 var user = context.Users.FirstOrDefault(p => p.UserName == username);
                 if (user != null)
                 {
-                    var employees = DocumentDBRepository<Employees>.getEmployeesActivities();
-                    var e = new Employees();
-                    //will only enter once
-                    foreach (Employees emp in employees)
+                    WebRequest request = WebRequest.Create("https://fidelitefunctionapp.azurewebsites.net/api/GetTopTenEmployees");
+                    request.Method = "POST";
+                    request.ContentType = "application/json";
+
+                    Stream dataStream = request.GetRequestStream();
+                    WebResponse response = request.GetResponse();
+                    dataStream = response.GetResponseStream();
+                    StreamReader reader = new StreamReader(dataStream);
+                    string responseFromServer = reader.ReadToEnd();
+                    reader.Close();
+                    dataStream.Close();
+                    response.Close();
+
+                    var first = responseFromServer.Replace("\"", "'");
+                    var ranking = JsonConvert.DeserializeObject<List<Rank>>(first);
+
+
+                    //var employees = DocumentDBRepository<Employees>.getEmployeesActivities();
+                    //var e = new Employees();
+                    ////will only enter once
+                    //foreach (Employees emp in employees)
+                    //{
+                    //    e = emp;
+                    //}
+                    //var logged = new Employee();
+                    ////string [] comp = User.Identity.Name.ToLower().Split('.', (char)2, (char)1);
+                    ////logged = e.employees.FirstOrDefault(p => p.firstname.ToLower() == comp[0] && p.lastname.ToLower() == comp[1]);
+                    //logged = e.employees.FirstOrDefault(p => p.screen_name == username);
+
+
+                    using (var client = new WebClient())
                     {
-                        e = emp;
-                    }
-                    var logged = new Employee();
-                    //string [] comp = User.Identity.Name.ToLower().Split('.', (char)2, (char)1);
-                    //logged = e.employees.FirstOrDefault(p => p.firstname.ToLower() == comp[0] && p.lastname.ToLower() == comp[1]);
-                    logged = e.employees.FirstOrDefault(p => p.screen_name == username);
-                    if (logged == null)
-                    {
-                        return View("Error");
-                    }
-                    else
-                    {
-                        ViewData["user"] = logged;
-                        return View(e);
+                        string data = "{\"screenname\":\"" + username + "\"}";
+                        var values = new NameValueCollection();
+                        values["screenname"] = username;
+
+                        client.Headers.Add("content-type", "application/json");
+                        client.QueryString = values;
+                        var responseEmployee = client.UploadData("https://fidelitefunctionapp.azurewebsites.net/api/GetConnectedEmployee", "post", Encoding.Default.GetBytes(data));
+                        var responseString = Encoding.Default.GetString(responseEmployee);
+
+                        var firstConv = responseString.Replace("\"", "'");
+                        var second = firstConv.Replace("\\", string.Empty);
+                        var third = second.Replace("'{", "{");
+                        var fourth = third.Replace("}'", "}");
+                        var employee = JsonConvert.DeserializeObject<Employee>(fourth);
+
+
+
+                        if (ranking == null)
+                        {
+                            return View("Error");
+                        }
+                        else
+                        {
+                            ViewData["ranking"] = ranking;
+                            return View(employee);
+                        }
                     }
                 }
             }
             return View("Error");
         }
 
-        [ActionName("Convert")]
         [Authorize(Roles = "Employee")]
+        [ActionName("Convert")]
         public ActionResult Convert()
         {
             using (var context = new ApplicationDbContext())
             {
+                WebRequest request = WebRequest.Create("https://fidelitefunctionapp.azurewebsites.net/api/GetRewards");
+                request.Method = "POST";
+                request.ContentType = "application/json";
 
-                WebRequest request = WebRequest.Create(
-             "https://fidelitefunctionapp.azurewebsites.net/api/GetRewards?code=7LSGHFqUi34TX/7Vq243akHhUKSpdYmC5RqnkEB09D12n/8kfsCNDw==");
-                // Get the response.  
+                Stream dataStream = request.GetRequestStream();
                 WebResponse response = request.GetResponse();
-                // Display the status.  
-                Console.WriteLine(((HttpWebResponse)response).StatusDescription);
-                // Get the stream containing content returned by the server.  
-                Stream dataStream = response.GetResponseStream();
-                // Open the stream using a StreamReader for easy access.  
+                dataStream = response.GetResponseStream();
                 StreamReader reader = new StreamReader(dataStream);
-                // Read the content.  
                 string responseFromServer = reader.ReadToEnd();
-                // Display the content.  
-                Console.WriteLine(responseFromServer);
-                // Clean up the streams and the response.  
                 reader.Close();
+                dataStream.Close();
                 response.Close();
 
                 var first = responseFromServer.Replace("\"", "'");
                 var second = first.Replace("\\", string.Empty);
-                var third = second.Replace("'{", "{");
-                var fourth = third.Replace("}'", "}");
-                var rewards = JsonConvert.DeserializeObject<Rewards>(fourth);
+                var third = second.Replace("'[", "[");
+                var fourth = third.Replace("]'", "]");
+                var rewards = JsonConvert.DeserializeObject<List<Reward>>(fourth);
                 ViewData["rewards"] = rewards;
+
+                //   WebRequest request = WebRequest.Create(
+                //"https://fidelitefunctionapp.azurewebsites.net/api/GetRewards?code=7LSGHFqUi34TX/7Vq243akHhUKSpdYmC5RqnkEB09D12n/8kfsCNDw==");
+                //   // Get the response.  
+                //   WebResponse response = request.GetResponse();
+                //   // Display the status.  
+                //   Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+                //   // Get the stream containing content returned by the server.  
+                //   Stream dataStream = response.GetResponseStream();
+                //   // Open the stream using a StreamReader for easy access.  
+                //   StreamReader reader = new StreamReader(dataStream);
+                //   // Read the content.  
+                //   string responseFromServer = reader.ReadToEnd();
+                //   // Display the content.  
+                //   Console.WriteLine(responseFromServer);
+                //   // Clean up the streams and the response.  
+                //   reader.Close();
+                //   response.Close();
+
+                //   var first = responseFromServer.Replace("\"", "'");
+                //   var second = first.Replace("\\", string.Empty);
+                //   var third = second.Replace("'{", "{");
+                //   var fourth = third.Replace("}'", "}");
+                //   var rewards = JsonConvert.DeserializeObject<Rewards>(fourth);
+                //ViewData["rewards"] = rewards;
             }
 
-                var username = User.Identity.Name;
-                if (username != null)
+            var username = User.Identity.Name;
+            if (username != null)
+            {
+                using (var client = new WebClient())
                 {
-                    using (var client = new WebClient())
-                    {
-                        string data = "{\"screenname\":\"" + username + "\"}";
-                        var values = new NameValueCollection();
-                        values["screenname"] = username;
-                        client.Headers.Add("content-type", "application/json");
+                    string data = "{\"screenname\":\"" + username + "\"}";
+                    var values = new NameValueCollection();
+                    values["screenname"] = username;
+                    client.Headers.Add("content-type", "application/json");
                     client.QueryString = values;
                     var response = client.UploadData("https://fidelitefunctionapp.azurewebsites.net/api/GetConnectedEmployee", "post", Encoding.Default.GetBytes(data));
                     var responseString = Encoding.Default.GetString(response);
@@ -131,7 +173,6 @@ namespace ContactManager.Controllers
 
 
         [ActionName("SendConversion")]
-        [Authorize(Roles = "Employee")]
         public ActionResult SendConversion()
         {
             using (var client = new WebClient())
@@ -256,5 +297,48 @@ namespace ContactManager.Controllers
             //}
         }
 
+
+        [HttpPost]
+        [ActionName("ConvertPoints")]
+        public ActionResult ConvertPoints()
+        {
+            string rewardName = Request["Rewards"].ToString();
+            using (var client = new WebClient())
+            {
+                string username = User.Identity.Name;
+                string data = "[{\"screenname\":\"" + username + "\"},{\"rewardtype\":\"" + rewardName + "\"}]";
+                var values = new NameValueCollection();
+                values["screenname"] = username;
+                values["rewardtype"] = rewardName;
+
+                client.Headers.Add("content-type", "application/json");
+                client.QueryString = values;
+                try
+                {
+                    var response = client.UploadData("https://fidelitefunctionapp.azurewebsites.net/api/RewardEmployee", "post", Encoding.Default.GetBytes(data));
+
+                    var responseString = Encoding.Default.GetString(response);
+                    responseString = responseString.Replace("\"", "");
+                    responseString = responseString.Replace('"', '\0');
+
+                    if (responseString.Equals("Successfully Converted Points to Reward "))
+                    {
+                        //MessageBox.Show("Congratulations", "Conversion Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return RedirectToAction("Convert");
+                    }
+                    else
+                    {
+                        //MessageBox.Show("Not enough points", "Conversion Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        return RedirectToAction("Convert");
+                    }
+
+                }
+                catch (Exception)
+                {
+                    //MessageBox.Show("Not enough points", "Conversion Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return RedirectToAction("Convert");
+                }
+            }
+        }
     }
 }
