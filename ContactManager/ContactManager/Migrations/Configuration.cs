@@ -18,24 +18,45 @@ namespace ContactManager.Migrations
 
         protected override void Seed(ContactManager.Models.ApplicationDbContext context)
         {
-            AddUserAndRole(context);
+            AddAdminAndRole(context);
+            AddManagerAndRole(context);
             AddRoleEmployee(context);
         }
 
-        bool AddUserAndRole(ContactManager.Models.ApplicationDbContext context)
+        bool AddManagerAndRole(ApplicationDbContext context)
         {
             IdentityResult ir;
             var rm = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
-            ir = rm.Create(new IdentityRole("Admin"));
+            ir = rm.Create(new IdentityRole("Manager"));
             var um = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
             var user = new ApplicationUser()
             {
-                UserName = "javista@hotmail.com",
+                Email = "javista@hotmail.com",
+                UserName = "javista_CRM",
             };
             ir = um.Create(user, "Abcd1234!");
             if (ir.Succeeded == false)
                 return ir.Succeeded;
+            ir = um.AddToRole(user.Id, "Manager");
             ir = um.AddToRole(user.Id, "Admin");
+            return ir.Succeeded;
+        }
+
+        bool AddAdminAndRole(ContactManager.Models.ApplicationDbContext context)
+        {
+            IdentityResult ir;
+            var rm = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
+            ir = rm.Create(new IdentityRole("Admin"));
+            //var um = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
+            //var user = new ApplicationUser()
+            //{
+            //    Email = "javista@hotmail.com",
+            //    UserName = "javista_CRM",
+            //};
+            //ir = um.Create(user, "Abcd1234!");
+            //if (ir.Succeeded == false)
+            //    return ir.Succeeded;
+            //ir = um.AddToRole(user.Id, "Admin");
             return ir.Succeeded;
         }
 

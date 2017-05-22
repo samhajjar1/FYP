@@ -1,0 +1,18 @@
+﻿@model List<ContactManager.Models.Employee>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+@{
+    foreach (var emp in Model)
+    {
+        <span>@emp.firstname @emp.lastname:</span><br />
+        foreach (var act in emp.activities)
+        {
+            <span>@act.platform @act.action created at: @act.parentCreatedAt @act.text</span><br />
+        }
+        <br /><br />
+    }
+}

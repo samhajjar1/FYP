@@ -12,5 +12,7 @@ namespace ContactManager.Models
         public string parentId { get; set; }
         public int points { get; set; }
         public DateTime parentCreatedAt { get; set; }
+        public string text { get; set; }
+
     }
 }
